@@ -3,7 +3,7 @@ import axios from 'axios';
 import Select from 'react-select';
 
 const logoUrl = "https://placehold.co/150x50/000000/FFFFFF?text=TUFF+Logo";
-const BACKEND_URL = 'http://localhost:8000'; 
+const BACKEND_URL = 'https://backend-c7fj.onrender.com'; 
 
 const ALL_OPTION = { value: "all", label: "Select All Keywords" };
 const KEYWORD_OPTIONS = [
