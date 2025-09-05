@@ -40,7 +40,8 @@ class TechArticleSearch:
                 article['full_content'] = None
                 return article
 
-    async def _search_and_scrape_single_query(self, query: str, date_filter: str) -> list:
+    async def _run_single_search(self, query: str, date_filter: str) -> list:
+        """Internal helper to run a single search query against the API."""
         print(f"🔎 Running search query: '{query}' for date range '{date_filter}'")
         api_url = "https://google.serper.dev/news"
         payload = {"q": query, "tbs": f"qdr:{date_filter}"}
@@ -57,35 +58,38 @@ class TechArticleSearch:
         if not selected_keywords:
             return []
 
-        search_queries = []
-        for keyword in selected_keywords:
-            query = (
-                f'"{keyword}" AND '
-                f'("university research funding" OR "federal grant" OR "innovation ecosystem" OR "R&D policy") AND '
-                f'(site:.gov OR site:.edu OR site:.org) -jobs -admissions -curriculum'
-            )
-            search_queries.append(query)
+        # --- NEW LOGIC: Create a single search query with keywords joined by "OR" ---
+        # This creates a broader "union" search. Example: ("CHIPS Act" OR "Semiconductors")
+        keywords_or_string = " OR ".join([f'"{k}"' for k in selected_keywords])
         
-        tasks = [self._search_and_scrape_single_query(q, date_filter) for q in search_queries]
-        results_from_all_searches = await asyncio.gather(*tasks)
+        # The main query now uses the combined OR string
+        query = (
+            f'({keywords_or_string}) AND '
+            f'("university research funding" OR "federal grant" OR "innovation ecosystem" OR "R&D policy") AND '
+            f'(site:.gov OR site:.edu OR site:.org) -jobs -admissions -curriculum'
+        )
+        
+        # Run the single, broader search
+        search_results = await self._run_single_search(query, date_filter)
 
+        # De-duplicate the results from the single search
         combined_articles = {}
-        for result_list in results_from_all_searches:
-            for article in result_list:
-                if article.get('link') and article['link'] not in combined_articles:
-                    combined_articles[article['link']] = article
+        for article in search_results:
+            if article.get('link') and article['link'] not in combined_articles:
+                combined_articles[article['link']] = article
         
+        # Limit to the top 7 unique articles for scraping
         unique_articles = list(combined_articles.values())[:7]
         print(f"Found {len(unique_articles)} unique articles to scrape.")
         
         if not unique_articles:
             return []
 
-        # --- PERFORMANCE IMPROVEMENT ---
-        # We are now running the scraping tasks in parallel again for a significant speed boost.
+        # Scrape the content for the found articles in parallel
         scraping_tasks = [self._scrape_content(article) for article in unique_articles]
         full_articles = await asyncio.gather(*scraping_tasks)
         
         valid_articles = [art for art in full_articles if art.get('full_content')]
         print(f"✅ Scraped content from {len(valid_articles)} valid articles.")
         return valid_articles
+
