@@ -11,10 +11,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Step 4: Copy the rest of the backend application code
 COPY . .
 
-# Step 5: Expose the port the app runs on
-EXPOSE 8000
+# Step 5: Expose the port the app runs on (this is for documentation)
+EXPOSE 8080
 
 # Step 6: Define the command to run the application for production
-# --- FIX: Increased timeout from 120 to 300 seconds for long-running tasks ---
-CMD ["gunicorn", "--workers", "4", "--worker-class", "uvicorn.workers.UvicornWorker", "--bind", "0.0.0.0:8000", "--timeout", "300", "main:app"]
+# --- FIX: Changed the CMD to use the $PORT environment variable provided by Cloud Run ---
+# We use the 'shell' form of CMD (a plain string) so that the $PORT variable is correctly interpreted.
+CMD exec gunicorn --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind "0.0.0.0:$PORT" --timeout 300 main:app
 
