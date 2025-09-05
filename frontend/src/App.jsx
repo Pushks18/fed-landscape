@@ -3,8 +3,7 @@ import axios from 'axios';
 import Select from 'react-select';
 import logo from "./assets/image.png";
 
-const logoUrl = "https://placehold.co/150x50/000000/FFFFFF?text=TUFF+Logo";
-// const BACKEND_URL = 'https://backend-c7fj.onrender.com'; 
+// const logoUrl = "https://placehold.co/150x50/000000/FFFFFF?text=TUFF+Logo";
 const BACKEND_URL = 'https://fed-landscape-755503321504.us-west1.run.app'; 
 
 const ALL_OPTION = { value: "all", label: "Select All Keywords" };
@@ -17,7 +16,6 @@ const KEYWORD_OPTIONS = [
 const DISPLAY_OPTIONS = [ALL_OPTION, ...KEYWORD_OPTIONS];
 
 function App() {
-  const [recipientEmail, setRecipientEmail] = useState('tuff2603@gmail.com');
   const [status, setStatus] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [selectedKeywords, setSelectedKeywords] = useState([]);
@@ -56,13 +54,13 @@ function App() {
     setReportContent('');
 
     try {
+      // The backend will send an email to this hardcoded address
       const response = await axios.post(`${BACKEND_URL}/api/process`, {
-        recipient_email: recipientEmail,
+        recipient_email: 'tuff2603@gmail.com', 
         selected_keywords: keywordsToSend,
         date_filter: dateFilter
       });
       if (response.data.status === 'success') {
-        // --- FIX: Safely set state, providing empty defaults ---
         setArticles(response.data.articles || []);
         setReportContent(response.data.report_content || '');
         setStatus(response.data.message || 'Report generated successfully.');
@@ -118,7 +116,7 @@ function App() {
         <img src={logo} alt="TUFF Logo" className="logo" />
         <h1>TUFF Fed Landscape</h1>
       </header>
-      <p>Select keywords to generate and email the latest report on federal activities.</p>
+      <p>Select keywords to generate the latest report on federal activities.</p>
       
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -143,15 +141,9 @@ function App() {
                 <option value="y">Past Year</option>
             </select>
         </div>
-        <div className="form-group">
-          <label htmlFor="email">Recipient's Email</label>
-          <input
-            type="email" id="email" value={recipientEmail}
-            onChange={(e) => setRecipientEmail(e.target.value)}
-          />
-        </div>
+        {/* --- REMOVED: Email input form group --- */}
         <button type="submit" disabled={isLoading}>
-          {isLoading ? <><div className="spinner"></div> Processing...</> : 'Generate & Send Report'}
+          {isLoading ? <><div className="spinner"></div> Processing...</> : 'Generate Report'}
         </button>
       </form>
 
