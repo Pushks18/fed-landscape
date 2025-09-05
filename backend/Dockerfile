@@ -15,7 +15,6 @@ COPY . .
 EXPOSE 8080
 
 # Step 6: Define the command to run the application for production
-# --- FIX: Changed the CMD to use the $PORT environment variable provided by Cloud Run ---
-# We use the 'shell' form of CMD (a plain string) so that the $PORT variable is correctly interpreted.
-CMD exec gunicorn --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind "0.0.0.0:$PORT" --timeout 300 main:app
+# --- FINAL FIX: Changed to the more robust 'shell' syntax to guarantee $PORT expansion ---
+CMD ["/bin/sh", "-c", "gunicorn --workers 4 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 300 main:app"]
 
