@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List
 import asyncio
+from datetime import datetime
 
 from data_collection import TechArticleSearch
 from classifier import ContentClassifier
@@ -15,7 +16,7 @@ report_generator = ReportGenerator()
 searcher = TechArticleSearch()
 classifier = ContentClassifier()
 
-# Final, robust CORS configuration to prevent connection errors
+# Final, robust CORS configuration
 origins = ["*"] 
 app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
@@ -45,7 +46,6 @@ async def process_request_endpoint(request: ProcessRequest):
             f"affecting universities and innovation ecosystems related to {', '.join(request.selected_keywords)}."
         )
         
-        # --- FIX: Reverted to a synchronous loop to call the correct classifier method ---
         for article in articles:
             score = classifier.evaluate_relevance(article.get('full_content', ''), relevance_context)
             article['relevance_score'] = score
@@ -67,14 +67,25 @@ async def process_request_endpoint(request: ProcessRequest):
             report_content += f"{paragraph}\n\n**Key Points:**\n{points}\n\n"
             report_content += f"[Read Full Article]({article.get('link', '#')})\n\n---\n\n"
 
+        # --- NEW LOGIC: Create Google Doc and send email via Arcade SDK ---
+        print("✉️ Creating Google Doc and sending email...")
+        subject = "Your TUFF Fed Landscape Report is Ready"
+        doc_title = f"{report_title} - {datetime.now().strftime('%Y-%m-%d')}"
+        
+        # Call the tool to create the Google Doc
+        doc_url = tools.add_content_to_gdoc(report_content, doc_title)
+        
+        # Call the tool to send the email with the link to the doc
+        tools.send_email(doc_url, subject, request.recipient_email)
+        
         print("✅ Task completed successfully!")
         
-        # --- Send the final data back to the frontend ---
+        # Send the final data back to the frontend
         return {
             "status": "success",
             "articles": sorted_articles,
             "report_content": report_content,
-            "message": f"Success! Generated a report from {len(sorted_articles)} articles."
+            "message": f"Success! Generated a report from {len(sorted_articles)} articles. An email has been sent."
         }
 
     except Exception as e:
