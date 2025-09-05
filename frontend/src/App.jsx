@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import Select from 'react-select';
+import logo from "./assets/image.png";
 
 const logoUrl = "https://placehold.co/150x50/000000/FFFFFF?text=TUFF+Logo";
 // const BACKEND_URL = 'https://backend-c7fj.onrender.com'; 
@@ -114,7 +115,7 @@ function App() {
   return (
     <div className="App">
       <header className="app-header">
-        <img src={logoUrl} alt="TUFF Logo" className="logo" />
+        <img src={logo} alt="TUFF Logo" className="logo" />
         <h1>TUFF Fed Landscape</h1>
       </header>
       <p>Select keywords to generate and email the latest report on federal activities.</p>
