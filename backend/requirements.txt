@@ -1,0 +1,15 @@
+fastapi
+uvicorn[standard]
+gunicorn
+pandas
+python-dotenv
+openai>=1.3.0
+arcadepy
+httpx
+scikit-learn
+python-dateutil
+lxml
+lxml_html_clean
+rapidfuzz
+beautifulsoup4
+trafilatura

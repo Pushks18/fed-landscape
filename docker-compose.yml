@@ -1,0 +1,17 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8000:8000"
+    # This command links your local .env file to the container for testing
+    env_file:
+      - .env
+
+  frontend:
+    build: ./frontend
+    ports:
+      # Connects your browser (port 5173) to the container's Nginx server (port 80)
+      - "5173:80"
+    depends_on:
+      - backend
+

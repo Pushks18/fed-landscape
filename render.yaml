@@ -1,0 +1,26 @@
+# This file tells Render how to deploy your services for free.
+services:
+  # Backend Service (Python/FastAPI)
+  - type: web
+    name: backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    # --- THIS IS THE KEY CHANGE ---
+    plan: free # Use the free instance tier
+    healthCheckPath: /docs
+    envVars:
+      - key: SERPER_API_KEY
+        sync: false
+      - key: HF_TOKEN
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ARCADE_API_KEY
+        sync: false
+      - key: ARCADE_USER_ID
+        sync: false
+
+  # Frontend Service (React)
+  # We will deploy the frontend separately on Vercel/Netlify for better performance.
+

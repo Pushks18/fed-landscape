@@ -1,0 +1,23 @@
+Environment variables
+.env
+
+Node.js dependencies
+/frontend/node_modules
+/node_modules
+
+Build output
+/frontend/dist
+/frontend/build
+
+Python virtual environment & cache
+/backend/venv
+/backend/myenv
+/backend/pycache
+/pycache
+
+IDE and editor files
+.vscode/
+.idea/
+
+macOS system files
+.DS_Store
